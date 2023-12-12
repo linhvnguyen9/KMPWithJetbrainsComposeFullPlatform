@@ -8,12 +8,14 @@ import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.CurrentScreen
+import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.tab.LocalTabNavigator
 import cafe.adriel.voyager.navigator.tab.Tab
 import cafe.adriel.voyager.navigator.tab.TabNavigator
@@ -24,12 +26,33 @@ class MainScreen: Screen {
 
     @Composable
     override fun Content() {
-        TabNavigator(HomeTab) {
+        Navigator(HomeTab) {
             Scaffold(
                 bottomBar = {
                     BottomNavigation {
-                        TabNavigationItem(HomeTab)
-                        TabNavigationItem(FavoritesTab)
+                        BottomNavigationItem(
+                            selected = true,
+                            onClick = {},
+                            icon = {
+                                Icon(
+                                    painter = rememberVectorPainter(Icons.Default.Home),
+                                    contentDescription = "Home"
+                                )
+                            }
+                        )
+                        BottomNavigationItem(
+                            selected = false,
+                            onClick = {},
+                            icon = {
+                                Icon(
+                                    painter = rememberVectorPainter(Icons.Default.Favorite),
+                                    contentDescription = "Favorites"
+                                )
+                            }
+
+                        )
+//                        TabNavigationItem(HomeTab)
+//                        TabNavigationItem(FavoritesTab)
                     }
                 }
             ) { innerPadding ->

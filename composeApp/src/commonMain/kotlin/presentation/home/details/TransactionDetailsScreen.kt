@@ -22,7 +22,7 @@ class TransactionDetailsScreen: Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val tabNavigator = LocalTabNavigator.current
+//        val tabNavigator = LocalTabNavigator.current
         val screenModel = rememberScreenModel { TransactionDetailsScreenModel() }
         val state = screenModel.stateFlow.collectAsState()
 
