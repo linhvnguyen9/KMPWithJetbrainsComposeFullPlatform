@@ -16,6 +16,7 @@ compose-plugin = "1.5.11"
 junit = "4.13.2"
 koin = "3.5.2-RC1"
 kotlin = "1.9.21"
+kotlinxDatetime = "0.6.0"
 napier = "2.6.1"
 voyager = "1.0.0-rc10"
 
@@ -35,6 +36,7 @@ compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview"
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
 napier = { module = "io.github.aakira:napier", version.ref = "napier" }
 voyager-androidx = { module = "cafe.adriel.voyager:voyager-androidx", version.ref = "voyager" }
 voyager-bottomSheetNavigator = { module = "cafe.adriel.voyager:voyager-bottom-sheet-navigator", version.ref = "voyager" }

@@ -21,6 +21,7 @@ import cafe.adriel.voyager.navigator.CurrentScreen
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.NavigatorContent
 import io.github.aakira.napier.Napier
+import presentation.candlechart.MarketChartPreview
 
 @Composable
 fun App() {
@@ -39,10 +40,7 @@ private fun Content() {
 
         Text("Hello, this is not ded yet!")
         data.value?.let {
-            TokenChart(
-                modifier = Modifier.fillMaxWidth().height(300.dp),
-                sparklineData = it
-            )
+            MarketChartPreview()
         }
 
         Button(onClick = {
