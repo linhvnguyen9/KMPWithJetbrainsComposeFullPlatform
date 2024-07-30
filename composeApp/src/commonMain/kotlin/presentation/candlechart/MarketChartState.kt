@@ -55,6 +55,10 @@ class MarketChartState {
         }
     }
 
+    val lastCandle by derivedStateOf {
+        visibleCandles.lastOrNull()
+    }
+
     private fun scaleView(zoomChange: Float) {
         if ((zoomChange < 1f && visibleCandleCount / zoomChange <= MAX_CANDLES) ||
             (zoomChange > 1f && visibleCandleCount / zoomChange >= MIN_CANDLES)
