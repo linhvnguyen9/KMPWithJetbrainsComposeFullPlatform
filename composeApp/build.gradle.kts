@@ -11,7 +11,7 @@ kotlin {
     androidTarget {
         compilations.all {
             kotlinOptions {
-                jvmTarget = "1.8"
+                jvmTarget = "17"
             }
         }
     }
@@ -82,17 +82,39 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    flavorDimensions += listOf("mode")
+    productFlavors {
+        create("pro") {
+            dimension = "mode"
+            isDefault = true
+        }
+        create("ui") {
+            dimension = "mode"
+        }
+        create("cold") {
+            dimension = "mode"
+        }
+    }
     buildTypes {
         getByName("release") {
-            isMinifyEnabled = false
+//            signingConfig = signingConfigs.getByName("release")
+//            isMinifyEnabled = false
+        }
+        getByName("debug") {
+            applicationIdSuffix = ".debug"
+            resValue("string", "app_name", "Mangala Debug")
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     dependencies {
         debugImplementation(libs.compose.ui.tooling)
+
+        debugImplementation("com.willowtreeapps.hyperion:hyperion-core:0.9.38")
+        debugImplementation("com.willowtreeapps.hyperion:hyperion-crash:0.9.38")
+        releaseImplementation("com.willowtreeapps.hyperion:hyperion-core-no-op:0.9.38")
     }
 }
 
