@@ -3,6 +3,8 @@ package presentation
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -17,11 +19,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.navigator.CurrentScreen
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.NavigatorContent
+import data.DataLoader
 import io.github.aakira.napier.Napier
-import presentation.candlechart.MarketChartPreview
+import kotlinx.datetime.Clock
+import kotlinx.datetime.format
+import kotlinx.datetime.format.DateTimeComponents
+import kotlinx.datetime.format.byUnicodePattern
+import presentation.candlechart.Candle
+import presentation.candlechart.MarketChart
+import presentation.candlechart.MarketChartColors
+import presentation.ui.Colors
 
 @Composable
 fun App() {
@@ -39,7 +50,35 @@ private fun Content() {
         val data = remember { mutableStateOf<List<Double>?>(null) }
 
         data.value?.let {
-            MarketChartPreview()
+            val dateTimeFormat = DateTimeComponents.Format {
+                byUnicodePattern("yyyy-MM-dd HH:mm")
+            }
+
+            MarketChart(
+                modifier = Modifier.fillMaxWidth().fillMaxHeight(0.5f).padding(16.dp),
+                candles = DataLoader.loadData().data?.map {
+                    Candle(
+                        open = it?.open?.toFloat() ?: 0f,
+                        close = it?.close?.toFloat() ?: 0f,
+                        high = it?.high?.toFloat() ?: 0f,
+                        low = it?.low?.toFloat() ?: 0f,
+                        time = it?.date ?: 0L
+                    )
+                }.orEmpty(),
+                marketChartColors = MarketChartColors.defaults().copy(
+                    backgroundColor = Colors.white,
+                    positiveColor = Colors.green,
+                    negativeColor = Colors.coral,
+                    textColor = Colors.darkDarkGray,
+                    lineColor = Color.LightGray.copy(alpha = 0.3f)
+                ),
+                dateTransform = {
+                    it.format(dateTimeFormat)
+                },
+                priceTransform = {
+                    it.toString()
+                }
+            )
         }
 
         Button(onClick = {

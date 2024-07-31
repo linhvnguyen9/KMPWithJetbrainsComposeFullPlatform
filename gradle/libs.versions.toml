@@ -17,7 +17,9 @@ junit = "4.13.2"
 koin = "3.5.2-RC1"
 kotlin = "1.9.21"
 kotlinxDatetime = "0.6.0"
+kotlinxSerializationJson = "1.5.1"
 napier = "2.6.1"
+parcelize = "0.9.0"
 voyager = "1.0.0-rc10"
 
 [libraries]
@@ -37,7 +39,9 @@ junit = { group = "junit", name = "junit", version.ref = "junit" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 napier = { module = "io.github.aakira:napier", version.ref = "napier" }
+parcelize = { module = "dev.icerock.moko:parcelize", version.ref = "parcelize" }
 voyager-androidx = { module = "cafe.adriel.voyager:voyager-androidx", version.ref = "voyager" }
 voyager-bottomSheetNavigator = { module = "cafe.adriel.voyager:voyager-bottom-sheet-navigator", version.ref = "voyager" }
 voyager-hilt = { module = "cafe.adriel.voyager:voyager-hilt", version.ref = "voyager" }

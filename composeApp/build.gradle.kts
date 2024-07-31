@@ -5,6 +5,8 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
+    id("kotlin-parcelize")
+    kotlin("plugin.serialization") version "1.9.10"
 }
 
 kotlin {
@@ -53,6 +55,8 @@ kotlin {
             implementation(libs.voyager.transitions)
             implementation(libs.napier)
             implementation(libs.koin.core)
+            api(libs.parcelize)
+            implementation(libs.kotlinx.serialization.json)
         }
     }
 }

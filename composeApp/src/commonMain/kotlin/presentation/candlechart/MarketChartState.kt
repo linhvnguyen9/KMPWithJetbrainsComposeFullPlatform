@@ -9,7 +9,6 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.setValue
 import kotlin.math.roundToInt
-import androidx.compose.foundation.Canvas
 
 class MarketChartState {
 
@@ -59,6 +58,10 @@ class MarketChartState {
         visibleCandles.lastOrNull()
     }
 
+    val latestCandle by derivedStateOf {
+        candles.lastOrNull()
+    }
+
     private fun scaleView(zoomChange: Float) {
         if ((zoomChange < 1f && visibleCandleCount / zoomChange <= MAX_CANDLES) ||
             (zoomChange > 1f && visibleCandleCount / zoomChange >= MIN_CANDLES)
@@ -78,16 +81,21 @@ class MarketChartState {
         when {
             currentGridWidth < MIN_GRID_WIDTH -> {
                 candleInGrid = MAX_GRID_WIDTH / candleWidth
-                timeLines = candles.filterIndexed { index, _ -> index % candleInGrid.roundToInt() == 0 }
+                timeLines =
+                    candles.filterIndexed { index, _ -> index % candleInGrid.roundToInt() == 0 }
             }
+
             currentGridWidth > MAX_GRID_WIDTH -> {
                 candleInGrid = MIN_GRID_WIDTH / candleWidth
-                timeLines = candles.filterIndexed { index, _ -> index % candleInGrid.roundToInt() == 0 }
+                timeLines =
+                    candles.filterIndexed { index, _ -> index % candleInGrid.roundToInt() == 0 }
             }
         }
     }
 
-    fun xOffset(candle: Candle) = viewWidth * visibleCandles.indexOf(candle).toFloat() / visibleCandleCount.toFloat()
+    fun xOffset(candle: Candle) =
+        viewWidth * visibleCandles.indexOf(candle).toFloat() / visibleCandleCount.toFloat()
+
     fun yOffset(value: Float) = viewHeight * (maxPrice - value) / (maxPrice - minPrice)
 
     companion object {
@@ -98,7 +106,11 @@ class MarketChartState {
         private const val START_CANDLES = 60
         private const val PRICES_COUNT = 10
 
-        fun getState(candles: List<Candle>, visibleCandleCount: Int? = null, scrollOffset: Float? = null) =
+        fun getState(
+            candles: List<Candle>,
+            visibleCandleCount: Int? = null,
+            scrollOffset: Float? = null
+        ) =
             MarketChartState().apply {
                 this.candles = candles
                 this.visibleCandleCount = visibleCandleCount ?: START_CANDLES
