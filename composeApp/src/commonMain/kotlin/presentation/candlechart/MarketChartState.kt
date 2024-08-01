@@ -81,14 +81,12 @@ class MarketChartState {
         when {
             currentGridWidth < MIN_GRID_WIDTH -> {
                 candleInGrid = MAX_GRID_WIDTH / candleWidth
-                timeLines =
-                    candles.filterIndexed { index, _ -> index % candleInGrid.roundToInt() == 0 }
+                timeLines = candles.filterIndexed { index, _ -> index % candleInGrid.roundToInt() == 0 }
             }
 
             currentGridWidth > MAX_GRID_WIDTH -> {
                 candleInGrid = MIN_GRID_WIDTH / candleWidth
-                timeLines =
-                    candles.filterIndexed { index, _ -> index % candleInGrid.roundToInt() == 0 }
+                timeLines = candles.filterIndexed { index, _ -> index % candleInGrid.roundToInt() == 0 }
             }
         }
     }
