@@ -38,7 +38,7 @@ fun MarketChart(
     BoxWithConstraints(modifier = modifier) {
         val chartWidth =
             constraints.maxWidth.toFloat() - textMeasurer.measure(priceTransform(0.12345678f)).size.width
-        val chartHeight = constraints.maxHeight - 64.dp.value
+        val chartHeight = constraints.maxHeight - 64.dp.value // Minus the space for the x-axis labels
 
         state.setViewSize(chartWidth, chartHeight)
         state.calculateGridWidth()
