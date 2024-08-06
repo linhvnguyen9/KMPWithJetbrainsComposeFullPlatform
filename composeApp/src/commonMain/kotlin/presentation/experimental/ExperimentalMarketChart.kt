@@ -9,10 +9,12 @@ import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,6 +28,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.TextUnit
@@ -49,77 +52,105 @@ fun ExperimentalMarketChart(
 
     val textMeasurer = rememberTextMeasurer()
 
-    Row(modifier) {
-        val text = "0.12345"
-        val textMeasureResult = textMeasurer.measure(text)
+    Column(modifier) { // TODO: Remove wrapping column after debug gridlines complete
+        Row {
+            val text = "0.12345"
+            val textMeasureResult = textMeasurer.measure(text)
 
-        BoxWithConstraints(Modifier.fillMaxHeight().weight(1f).transformable(state.transformableState)) {
-            val chartWidth = constraints.maxWidth.toFloat()
-            val chartHeight = constraints.maxHeight - 64.dp.value // Minus the space for the x-axis labels
+            BoxWithConstraints(Modifier.fillMaxHeight().weight(1f).transformable(state.transformableState)) {
+                val chartWidth = constraints.maxWidth.toFloat()
+                val chartHeight = constraints.maxHeight - 64.dp.value // Minus the space for the x-axis labels
 
-            state.setViewSize(chartWidth, chartHeight)
-            state.calculateGridWidth()
+                state.setViewSize(chartWidth, chartHeight)
+                state.calculateGridWidth()
+                state.calculateGrid()
 
-            Canvas(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(marketChartColors.backgroundColor)
-            ) {
-                clipRect {
-                    withTransform({
-                        translate(state.offset.x, state.offset.y)
-                    }) {
-                        state.visibleCandles.forEach { candle ->
-                            val xOffset = state.xOffset(candle)
-                            val color =
-                                if (candle.open > candle.close) marketChartColors.negativeColor else marketChartColors.positiveColor
-                            drawLine(
-                                color = color,
-                                strokeWidth = 2.dp.value,
-                                start = Offset(xOffset, state.yOffset(candle.low)),
-                                end = Offset(xOffset, state.yOffset(candle.high))
-                            )
-                            if (candle.open > candle.close) {
-                                drawRect(
+                Canvas(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(marketChartColors.backgroundColor)
+                ) {
+                    clipRect {
+                        withTransform({
+                            translate(state.offset.x, state.offset.y)
+                        }) {
+                            state.visibleCandles.forEach { candle ->
+                                val xOffset = state.xOffset(candle)
+                                val color =
+                                    if (candle.open > candle.close) marketChartColors.negativeColor else marketChartColors.positiveColor
+                                drawLine(
                                     color = color,
-                                    topLeft = Offset(xOffset - state.candleSize / 2, state.yOffset(candle.open)),
-                                    size = Size(
-                                        state.candleSize, // TODO: Determine size dynamically
-                                        state.yOffset(candle.close) - state.yOffset(candle.open)
-                                    )
+                                    strokeWidth = 2.dp.value,
+                                    start = Offset(xOffset, state.yOffset(candle.low)),
+                                    end = Offset(xOffset, state.yOffset(candle.high))
                                 )
-                            } else {
-                                drawRect(
-                                    color = color,
-                                    topLeft = Offset(xOffset - state.candleSize / 2, state.yOffset(candle.close)),
-                                    size = Size(
-                                        state.candleSize,
-                                        state.yOffset(candle.open) - state.yOffset(candle.close)
+                                if (candle.open > candle.close) {
+                                    drawRect(
+                                        color = color,
+                                        topLeft = Offset(xOffset - state.candleSize / 2, state.yOffset(candle.open)),
+                                        size = Size(
+                                            state.candleSize, // TODO: Determine size dynamically
+                                            state.yOffset(candle.close) - state.yOffset(candle.open)
+                                        )
                                     )
+                                } else {
+                                    drawRect(
+                                        color = color,
+                                        topLeft = Offset(xOffset - state.candleSize / 2, state.yOffset(candle.close)),
+                                        size = Size(
+                                            state.candleSize,
+                                            state.yOffset(candle.open) - state.yOffset(candle.close)
+                                        )
+                                    )
+                                }
+                            }
+
+                            state.priceLines.forEach { value: Float ->
+//                                val yOffset = state.yOffset(value)
+//                                val text = priceTransform(value)
+                                drawLine(
+                                    color = marketChartColors.lineColor,
+                                    strokeWidth = 2.dp.value,
+                                    start = Offset(0f, value),
+                                    end = Offset(chartWidth, value)
                                 )
                             }
                         }
                     }
                 }
             }
-        }
 
-        Canvas(
-            modifier = Modifier
-                .background(Color.Red)
-                .width(textMeasureResult.size.width.toDp().dp)
-                .fillMaxHeight()
-                .scrollable(state.verticalAxisScroll, orientation = Orientation.Vertical, reverseDirection = true)
-        ) {
-            clipRect {
-                withTransform({
-                    translate(0f, state.offset.y)
-                }) {
-                    drawText(textMeasurer, text, topLeft = Offset(0f, 0f))
+            Canvas(
+                modifier = Modifier
+                    .background(Color.Red)
+                    .width(textMeasureResult.size.width.toDp().dp)
+                    .fillMaxHeight()
+                    .scrollable(state.verticalAxisScroll, orientation = Orientation.Vertical, reverseDirection = true)
+            ) {
+                state.horizontalGridLines.forEach { gridLine ->
+                    drawText(textMeasurer, gridLine.label, topLeft = Offset(0f, gridLine.coordinate))
+                }
+                clipRect {
+                    withTransform({
+                        translate(0f, state.offset.y)
+                    }) {
+//                        state.priceLines.forEach { value: Float ->
+//                            val yOffset = state.yOffset(value)
+//                            val text = priceTransform(value)
+//                            val measureResult = textMeasurer.measure(text, TextStyle(fontSize = textSize))
+//                            drawText(
+//                                textMeasurer,
+//                                text,
+//                                Offset(0f, yOffset),
+//                                TextStyle(fontSize = textSize, color = marketChartColors.textColor)
+//                            )
+//                        }
+                    }
                 }
             }
         }
     }
+
 }
 
 // Helper function to convert Int to Dp

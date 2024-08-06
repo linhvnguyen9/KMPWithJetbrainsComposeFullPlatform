@@ -25,6 +25,11 @@ class ExperimentalMarketChartState {
     private var autoFit by mutableStateOf(false)
     var verticalAxisOffset by mutableStateOf(1f)
 
+    var verticalGridLines: List<GridLine> = emptyList()
+        private set
+    var horizontalGridLines: List<GridLine> = emptyList()
+        private set
+
     private val maxPrice by derivedStateOf { visibleCandles.maxOfOrNull { it.high } ?: 0f }
     private val minPrice by derivedStateOf { visibleCandles.minOfOrNull { it.low } ?: 0f }
 
@@ -38,10 +43,12 @@ class ExperimentalMarketChartState {
 
         offset = Offset(offsetX, offsetY)
         scaleView(zoomChange)
+        calculateGrid()
     }
 
     val verticalAxisScroll = ScrollableState {
         verticalAxisOffset += it / VERTICAL_SCALE_DAMPING
+        calculateGrid()
         it / VERTICAL_SCALE_DAMPING
     }
 
@@ -105,6 +112,48 @@ class ExperimentalMarketChartState {
         viewHeight * value * verticalAxisOffset.coerceAtLeast(VERTICAL_SCALE_MIN)
     }
 
+    fun yOffsetToValue(offset: Float) = if (autoFit) {
+        maxPrice - offset * (maxPrice - minPrice) / viewHeight
+    } else {
+        offset / viewHeight / verticalAxisOffset.coerceAtLeast(VERTICAL_SCALE_MIN)
+    }
+
+    val priceLines by derivedStateOf { // price lines, value is actual value not offset
+        val step = viewHeight / PRICES_COUNT
+        mutableListOf<Float>().apply { repeat(PRICES_COUNT) { add(step * it) } }
+//        val priceItem = (maxPrice - minPrice) / PRICES_COUNT
+//
+//        mutableListOf<Float>().apply { repeat(PRICES_COUNT) { if (it > 0) add(maxPrice - priceItem * it) } }
+
+
+    }
+
+    fun calculateGrid() {
+        val maxOffset = maxOffsetToYValue()
+        val minOffset = minOffsetToYValue()
+
+        horizontalGridLines = listOf(
+            GridLine(
+                label = yOffset(0f).toString(),
+                coordinate = 0f,
+                value = yOffset(0f)
+            ),
+//            GridLine(
+//                label = minOffset.toString(),
+//                coordinate = viewHeight,
+//                value = minOffsetToYValue()
+//            )
+        )
+    }
+
+    fun maxOffsetToXValue() = (offset.x + viewWidth / 2)
+
+    fun minOffsetToXValue() = offset.x - viewWidth / 2
+
+    private fun maxOffsetToYValue() = (offset.y + viewHeight / 2) / viewHeight / verticalAxisOffset.coerceAtLeast(VERTICAL_SCALE_MIN)
+
+    private fun minOffsetToYValue() = (offset.y - viewHeight / 2) / viewHeight / verticalAxisOffset.coerceAtLeast(VERTICAL_SCALE_MIN)
+
     companion object {
         private const val MAX_CANDLES = 100 // TODO: Make a system so that we don't depend on max and min candles
         private const val MIN_CANDLES = 30
@@ -113,6 +162,7 @@ class ExperimentalMarketChartState {
         private const val START_CANDLES = 60
         private const val VERTICAL_SCALE_DAMPING = 1500
         private const val VERTICAL_SCALE_MIN = 0.05f
+        private const val PRICES_COUNT = 20
 
         fun getState(
             candles: List<Candle>,
@@ -126,3 +176,9 @@ class ExperimentalMarketChartState {
         }
     }
 }
+
+data class GridLine(
+    val label: String,
+    val coordinate: Float,
+    val value: Float
+)
