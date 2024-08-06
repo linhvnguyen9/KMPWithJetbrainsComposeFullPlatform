@@ -2,7 +2,11 @@ package presentation.experimental
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.FlingBehavior
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.TransformableState
+import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
 import androidx.compose.foundation.gestures.transformable
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
@@ -44,11 +48,6 @@ fun ExperimentalMarketChart(
     val state = remember { ExperimentalMarketChartState.getState(candles) }
 
     val textMeasurer = rememberTextMeasurer()
-    var verticalAxisOffset by remember { mutableStateOf(0f) }
-
-    val verticalAxisTransformableState = TransformableState { zoomChange, panChange, _ ->
-        verticalAxisOffset += panChange.y
-    }
 
     Row(modifier) {
         val text = "0.12345"
@@ -67,7 +66,6 @@ fun ExperimentalMarketChart(
                     .background(marketChartColors.backgroundColor)
             ) {
                 clipRect {
-//                    drawRect(color = Color.Blue)
                     withTransform({
                         translate(state.offset.x, state.offset.y)
                     }) {
@@ -84,18 +82,18 @@ fun ExperimentalMarketChart(
                             if (candle.open > candle.close) {
                                 drawRect(
                                     color = color,
-                                    topLeft = Offset(xOffset - 6.dp.value, state.yOffset(candle.open)),
+                                    topLeft = Offset(xOffset - state.candleSize / 2, state.yOffset(candle.open)),
                                     size = Size(
-                                        12.dp.value, // TODO: Determine size dynamically
+                                        state.candleSize, // TODO: Determine size dynamically
                                         state.yOffset(candle.close) - state.yOffset(candle.open)
                                     )
                                 )
                             } else {
                                 drawRect(
                                     color = color,
-                                    topLeft = Offset(xOffset - 6.dp.value, state.yOffset(candle.close)),
+                                    topLeft = Offset(xOffset - state.candleSize / 2, state.yOffset(candle.close)),
                                     size = Size(
-                                        12.dp.value,
+                                        state.candleSize,
                                         state.yOffset(candle.open) - state.yOffset(candle.close)
                                     )
                                 )
@@ -110,7 +108,8 @@ fun ExperimentalMarketChart(
             modifier = Modifier
                 .background(Color.Red)
                 .width(textMeasureResult.size.width.toDp().dp)
-                .fillMaxHeight().transformable(verticalAxisTransformableState)
+                .fillMaxHeight()
+                .scrollable(state.verticalAxisScroll, orientation = Orientation.Vertical, reverseDirection = true)
         ) {
             clipRect {
                 withTransform({

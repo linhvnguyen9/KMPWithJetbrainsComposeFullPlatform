@@ -1,11 +1,13 @@
 package presentation.experimental
 
+import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.gestures.TransformableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.unit.dp
 import presentation.candlechart.Candle
 import kotlin.math.roundToInt
 
@@ -18,7 +20,10 @@ class ExperimentalMarketChartState {
     private var viewWidth = 0f
     private var viewHeight = 0f
     private var candleInGrid = Float.MAX_VALUE
+    var candleSize = 12.dp.value
+        private set
     private var autoFit by mutableStateOf(false)
+    var verticalAxisOffset by mutableStateOf(1f)
 
     private val maxPrice by derivedStateOf { visibleCandles.maxOfOrNull { it.high } ?: 0f }
     private val minPrice by derivedStateOf { visibleCandles.minOfOrNull { it.low } ?: 0f }
@@ -33,6 +38,11 @@ class ExperimentalMarketChartState {
 
         offset = Offset(offsetX, offsetY)
         scaleView(zoomChange)
+    }
+
+    val verticalAxisScroll = ScrollableState {
+        verticalAxisOffset += it / VERTICAL_SCALE_DAMPING
+        it / VERTICAL_SCALE_DAMPING
     }
 
     private val Float.scrolledCandles: Float
@@ -92,7 +102,7 @@ class ExperimentalMarketChartState {
     fun yOffset(value: Float) = if (autoFit) {
         viewHeight * (maxPrice - value) / (maxPrice - minPrice)
     } else {
-        viewHeight * value
+        viewHeight * value * verticalAxisOffset.coerceAtLeast(VERTICAL_SCALE_MIN)
     }
 
     companion object {
@@ -101,6 +111,8 @@ class ExperimentalMarketChartState {
         private const val MAX_GRID_WIDTH = 500 // TODO: Make a system so that we don't depend on max and min width
         private const val MIN_GRID_WIDTH = 250
         private const val START_CANDLES = 60
+        private const val VERTICAL_SCALE_DAMPING = 1500
+        private const val VERTICAL_SCALE_MIN = 0.05f
 
         fun getState(
             candles: List<Candle>,
